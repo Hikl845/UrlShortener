@@ -1,13 +1,12 @@
 package com.example.urlShortener.link;
 
+import com.example.urlShortener.exception.BadRequestException;
 import com.example.urlShortener.link.dto.LinkResponse;
 import com.example.urlShortener.link.dto.LinkStatsResponse;
 import com.example.urlShortener.user.User;
 import com.example.urlShortener.user.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -20,7 +19,8 @@ public class LinkServiceImpl implements LinkService {
     private final LinkRepository repo;
     private final UserRepository userRepository;
 
-    public LinkService(LinkRepository repo, UserRepository userRepository) {
+    // ✅ FIX КОНСТРУКТОР
+    public LinkServiceImpl(LinkRepository repo, UserRepository userRepository) {
         this.repo = repo;
         this.userRepository = userRepository;
     }
@@ -28,24 +28,25 @@ public class LinkServiceImpl implements LinkService {
     // =========================
     // CREATE LINK
     // =========================
-    public ShortLink create(String url, String username) {
+    @Override
+    public LinkResponse create(String url, String username) {
 
-        validateUrl(url); // 🔥 ДОДАНО
+        validateUrl(url);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new BadRequestException("User not found"));
 
         ShortLink link = new ShortLink();
         link.setOriginalUrl(url);
         link.setShortCode(generateUniqueCode());
         link.setUser(user);
         link.setCreatedAt(LocalDateTime.now());
-
-        link.setExpiresAt(LocalDateTime.now().plusDays(7)); // 🔥 ДОДАНО
+        link.setExpiresAt(LocalDateTime.now().plusDays(7));
         link.setClickCount(0);
 
-        return repo.save(link);
+        repo.save(link);
+
+        return mapToResponse(link);
     }
 
     // =========================
@@ -55,12 +56,11 @@ public class LinkServiceImpl implements LinkService {
     public ShortLink openByCode(String code) {
 
         ShortLink link = repo.findByShortCode(code)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Link not found"));
+                .orElseThrow(() -> new BadRequestException("Link not found"));
 
         if (link.getExpiresAt() != null &&
                 link.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.GONE, "Link expired");
+            throw new BadRequestException("Link expired");
         }
 
         repo.incrementClick(code);
@@ -69,21 +69,24 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // GET USER LINKS
+    // GET USER LINKS + ACTIVE FILTER 🔥
     // =========================
-    public List<LinkResponse> getUserLinks(String username) {
+    public List<LinkResponse> getUserLinks(String username, Boolean active) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new BadRequestException("User not found"));
 
         return repo.findAllByUserId(user.getId())
                 .stream()
-                .map(link -> new LinkResponse(
-                        link.getShortCode(),
-                        link.getOriginalUrl(),
-                        link.getClickCount()
-                ))
+                .filter(link -> {
+                    if (active == null) return true;
+
+                    boolean isActive = link.getExpiresAt() == null ||
+                            link.getExpiresAt().isAfter(LocalDateTime.now());
+
+                    return active.equals(isActive);
+                })
+                .map(this::mapToResponse)
                 .toList();
     }
 
@@ -93,15 +96,13 @@ public class LinkServiceImpl implements LinkService {
     public void delete(Long id, String username) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new BadRequestException("User not found"));
 
         ShortLink link = repo.findById(id)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Link not found"));
+                .orElseThrow(() -> new BadRequestException("Link not found"));
 
         if (!link.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your link");
+            throw new BadRequestException("Not your link");
         }
 
         repo.delete(link);
@@ -113,8 +114,7 @@ public class LinkServiceImpl implements LinkService {
     public LinkStatsResponse getStats(String code) {
 
         ShortLink link = repo.findByShortCode(code)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Link not found"));
+                .orElseThrow(() -> new BadRequestException("Link not found"));
 
         boolean active = link.getExpiresAt() == null ||
                 link.getExpiresAt().isAfter(LocalDateTime.now());
@@ -128,21 +128,38 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // VALIDATE URL 🔥 НОВЕ
+    // VALIDATE URL 🔥 ПРОКАЧАНО
     // =========================
     private void validateUrl(String url) {
+
+        if (url == null || url.isBlank()) {
+            throw new BadRequestException("URL is empty");
+        }
+
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            throw new BadRequestException("Invalid protocol");
+        }
+
         try {
             new URL(url).toURI();
         } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Invalid URL"
-            );
+            throw new BadRequestException("Invalid URL format");
         }
     }
 
     // =========================
-    // GENERATE UNIQUE CODE
+    // MAPPER 🔥
+    // =========================
+    private LinkResponse mapToResponse(ShortLink link) {
+        return new LinkResponse(
+                link.getShortCode(),
+                link.getOriginalUrl(),
+                link.getClickCount()
+        );
+    }
+
+    // =========================
+    // GENERATE CODE
     // =========================
     private String generateUniqueCode() {
 
