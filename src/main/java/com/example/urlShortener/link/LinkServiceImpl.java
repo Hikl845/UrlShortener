@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 @Service
-public class LinkService {
+public class LinkServiceImpl implements LinkService {
 
     private final LinkRepository repo;
     private final UserRepository userRepository;
