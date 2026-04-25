@@ -19,7 +19,7 @@ public class LinkServiceImpl implements LinkService {
     private final LinkRepository repo;
     private final UserRepository userRepository;
 
-    // ✅ FIX КОНСТРУКТОР
+    // ✅ ПРАВИЛЬНИЙ КОНСТРУКТОР
     public LinkServiceImpl(LinkRepository repo, UserRepository userRepository) {
         this.repo = repo;
         this.userRepository = userRepository;
@@ -69,7 +69,7 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // GET USER LINKS + ACTIVE FILTER 🔥
+    // GET USER LINKS + FILTER
     // =========================
     public List<LinkResponse> getUserLinks(String username, Boolean active) {
 
@@ -128,7 +128,7 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // VALIDATE URL 🔥 ПРОКАЧАНО
+    // VALIDATE URL
     // =========================
     private void validateUrl(String url) {
 
@@ -148,7 +148,7 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // MAPPER 🔥
+    // MAPPER
     // =========================
     private LinkResponse mapToResponse(ShortLink link) {
         return new LinkResponse(
