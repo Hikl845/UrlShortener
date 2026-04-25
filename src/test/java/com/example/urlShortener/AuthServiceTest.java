@@ -15,8 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +39,7 @@ class AuthServiceTest {
 
         AuthRequest request = new AuthRequest();
         request.setUsername("test");
-        request.setPassword("password");
+        request.setPassword("Password1"); // ✅ валідний пароль
 
         when(userRepository.findByUsername("test"))
                 .thenReturn(Optional.empty());
@@ -56,7 +55,9 @@ class AuthServiceTest {
 
         AuthResponse response = authService.register(request);
 
+        assertNotNull(response);
         assertNotNull(response.getAccessToken());
+        assertNotNull(response.getRefreshToken());
     }
 
     @Test
@@ -64,7 +65,7 @@ class AuthServiceTest {
 
         AuthRequest request = new AuthRequest();
         request.setUsername("test");
-        request.setPassword("password");
+        request.setPassword("Password1");
 
         when(userRepository.findByUsername("test"))
                 .thenReturn(Optional.of(new User()));
