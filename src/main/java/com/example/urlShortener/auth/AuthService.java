@@ -8,7 +8,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -23,47 +22,45 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-
-    public AuthResponse register(AuthRequest request) {
+    public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("User already exists");
+            throw new BadRequestException("User exists");
         }
 
-        if (request.getPassword().length() < 4) {
-            throw new RuntimeException("Password too short");
+        if (!isValidPassword(request.getPassword())) {
+            throw new BadRequestException("Weak password");
         }
 
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        // 👑 дефолтна роль
         user.setRole(Role.ROLE_USER);
 
         userRepository.save(user);
 
-        String accessToken = jwtService.generateAccessToken(user.getUsername(), user.getRole().name());
-        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
-
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponse(
+                jwtService.generateAccessToken(user.getUsername(), user.getRole().name()),
+                jwtService.generateRefreshToken(user.getUsername())
+        );
     }
 
-    // =========================
-    // LOGIN
-    // =========================
-    public AuthResponse login(AuthRequest request) {
+    public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BadRequestException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Wrong password");
+            throw new BadRequestException("Wrong password");
         }
 
-        String accessToken = jwtService.generateAccessToken(user.getUsername(), user.getRole().name());
-        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+        return new AuthResponse(
+                jwtService.generateAccessToken(user.getUsername(), user.getRole().name()),
+                jwtService.generateRefreshToken(user.getUsername())
+        );
+    }
 
-        return new AuthResponse(accessToken, refreshToken);
+    private boolean isValidPassword(String password) {
+        return password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$");
     }
 }
