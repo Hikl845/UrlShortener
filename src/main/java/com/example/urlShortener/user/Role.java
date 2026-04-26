@@ -1,4 +1,4 @@
-package com.example.urlShortener.user;
+package com.example.urlshortener.user;
 
 public enum Role {
     ROLE_USER,
