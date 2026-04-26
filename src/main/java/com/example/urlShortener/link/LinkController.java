@@ -1,7 +1,7 @@
 package com.example.urlshortener.link;
 
-import com.example.urlShortener.link.dto.LinkResponse;
-import com.example.urlShortener.link.dto.LinkStatsResponse;
+import com.example.urlshortener.link.dto.LinkResponse;
+import com.example.urlshortener.link.dto.LinkStatsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
