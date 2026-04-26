@@ -1,4 +1,4 @@
-package com.example.urlShortener.exception;
+package com.example.urlshortener.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
