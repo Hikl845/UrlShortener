@@ -1,7 +1,7 @@
 package com.example.urlshortener.link;
 
-import com.example.urlShortener.link.dto.LinkResponse;
-import com.example.urlShortener.link.dto.LinkStatsResponse;
+import com.example.urlshortener.link.dto.LinkResponse;
+import com.example.urlshortener.link.dto.LinkStatsResponse;
 
 import java.util.List;
 
