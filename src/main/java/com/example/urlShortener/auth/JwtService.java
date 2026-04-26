@@ -1,4 +1,4 @@
-package com.example.urlShortener.auth;
+package com.example.urlshortener.auth;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
