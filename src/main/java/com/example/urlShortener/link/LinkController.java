@@ -68,4 +68,13 @@ public class LinkController {
 
         return service.getStats(code);
     }
+    @GetMapping("/active")
+public List<LinkResponse> getActiveLinks() {
+
+    String username = SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getName();
+
+    return service.getUserLinks(username, true);
+}
 }
