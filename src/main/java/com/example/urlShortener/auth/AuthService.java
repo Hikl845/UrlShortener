@@ -1,5 +1,6 @@
 package com.example.urlShortener.auth;
 
+import com.example.urlShortener.exception.BadRequestException;
 import com.example.urlShortener.user.Role;
 import com.example.urlShortener.user.User;
 import com.example.urlShortener.user.UserRepository;

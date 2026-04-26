@@ -19,14 +19,13 @@ public class LinkServiceImpl implements LinkService {
     private final LinkRepository repo;
     private final UserRepository userRepository;
 
-    // ✅ ПРАВИЛЬНИЙ КОНСТРУКТОР
     public LinkServiceImpl(LinkRepository repo, UserRepository userRepository) {
         this.repo = repo;
         this.userRepository = userRepository;
     }
 
     // =========================
-    // CREATE LINK
+    // CREATE
     // =========================
     @Override
     public LinkResponse create(String url, String username) {
@@ -50,10 +49,11 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // OPEN LINK (REDIRECT)
+    // OPEN
     // =========================
+    @Override
     @Transactional
-    public ShortLink openByCode(String code) {
+    public LinkResponse openByCode(String code) {
 
         ShortLink link = repo.findByShortCode(code)
                 .orElseThrow(() -> new BadRequestException("Link not found"));
@@ -65,34 +65,28 @@ public class LinkServiceImpl implements LinkService {
 
         repo.incrementClick(code);
 
-        return link;
+        return mapToResponse(link);
     }
 
     // =========================
-    // GET USER LINKS + FILTER
+    // GET USER LINKS
     // =========================
-    public List<LinkResponse> getUserLinks(String username, Boolean active) {
+    @Override
+    public List<LinkResponse> getUserLinks(String username) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
         return repo.findAllByUserId(user.getId())
                 .stream()
-                .filter(link -> {
-                    if (active == null) return true;
-
-                    boolean isActive = link.getExpiresAt() == null ||
-                            link.getExpiresAt().isAfter(LocalDateTime.now());
-
-                    return active.equals(isActive);
-                })
                 .map(this::mapToResponse)
                 .toList();
     }
 
     // =========================
-    // DELETE LINK
+    // DELETE
     // =========================
+    @Override
     public void delete(Long id, String username) {
 
         User user = userRepository.findByUsername(username)
@@ -111,6 +105,7 @@ public class LinkServiceImpl implements LinkService {
     // =========================
     // STATS
     // =========================
+    @Override
     public LinkStatsResponse getStats(String code) {
 
         ShortLink link = repo.findByShortCode(code)
@@ -128,7 +123,7 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // VALIDATE URL
+    // VALIDATION
     // =========================
     private void validateUrl(String url) {
 
@@ -159,7 +154,7 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // GENERATE CODE
+    // CODE GENERATOR
     // =========================
     private String generateUniqueCode() {
 
@@ -181,4 +176,6 @@ public class LinkServiceImpl implements LinkService {
 
         return code;
     }
+
+
 }

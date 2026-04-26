@@ -24,8 +24,8 @@ public class LinkController {
     // CREATE LINK
     // =========================
     @PostMapping
-    public ShortLink create(@RequestParam String url,
-                            @AuthenticationPrincipal User user) {
+    public LinkResponse create(@RequestParam String url,
+                               @AuthenticationPrincipal User user) {
 
         return service.create(url, user.getUsername());
     }
@@ -37,7 +37,7 @@ public class LinkController {
     public void redirect(@PathVariable String code,
                          HttpServletResponse response) throws IOException {
 
-        ShortLink link = service.openByCode(code);
+        LinkResponse link = service.openByCode(code);
         response.sendRedirect(link.getOriginalUrl());
     }
 

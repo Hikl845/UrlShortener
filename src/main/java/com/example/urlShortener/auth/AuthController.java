@@ -1,5 +1,6 @@
 package com.example.urlShortener.auth;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
