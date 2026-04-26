@@ -9,13 +9,11 @@ public interface LinkService {
 
     LinkResponse create(String url, String username);
 
-    LinkResponse openByCode(String code);
+    ShortLink openByCode(String code);
 
-    List<LinkResponse> getUserLinks(String username);
+    List<LinkResponse> getUserLinks(String username, Boolean onlyActive);
 
     void delete(Long id, String username);
-
-    //Object getStats(String username);
 
     LinkStatsResponse getStats(String code);
 }
