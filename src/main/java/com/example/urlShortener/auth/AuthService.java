@@ -1,12 +1,13 @@
-package com.example.urlShortener.auth;
+package com.example.urlshortener.auth;
 
-import com.example.urlShortener.exception.BadRequestException;
-import com.example.urlShortener.user.Role;
-import com.example.urlShortener.user.User;
-import com.example.urlShortener.user.UserRepository;
-import lombok.RequiredArgsConstructor;
+import com.example.urlshortener.exception.BadRequestException;
+import com.example.urlshortener.user.Role;
+import com.example.urlshortener.user.User;
+import com.example.urlshortener.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class AuthService {
@@ -23,6 +24,9 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
+    // =========================
+    // REGISTER
+    // =========================
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -38,6 +42,8 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.ROLE_USER);
 
+        user.setCreatedAt(LocalDateTime.now()); // 🔥 FIX
+
         userRepository.save(user);
 
         return new AuthResponse(
@@ -46,6 +52,9 @@ public class AuthService {
         );
     }
 
+    // =========================
+    // LOGIN
+    // =========================
     public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByUsername(request.getUsername())
@@ -61,6 +70,9 @@ public class AuthService {
         );
     }
 
+    // =========================
+    // PASSWORD VALIDATION
+    // =========================
     private boolean isValidPassword(String password) {
         return password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$");
     }
