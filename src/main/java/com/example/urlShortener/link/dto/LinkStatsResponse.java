@@ -1,4 +1,4 @@
-package com.example.urlShortener.link.dto;
+package com.example.urlshortener.link.dto;
 
 
 public class LinkStatsResponse {
