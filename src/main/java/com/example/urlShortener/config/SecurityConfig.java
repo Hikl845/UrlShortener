@@ -1,6 +1,6 @@
 package com.example.urlshortener.config;
 
-import com.example.urlShortener.auth.JwtAuthFilter;
+import com.example.urlshortener.auth.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
