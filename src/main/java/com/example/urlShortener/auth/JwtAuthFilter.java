@@ -1,4 +1,4 @@
-package com.example.urlShortener.auth;
+package com.example.urlshortener.auth;
 
 import com.example.urlShortener.user.User;
 import com.example.urlShortener.user.UserRepository;
