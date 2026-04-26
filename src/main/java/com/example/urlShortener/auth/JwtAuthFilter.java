@@ -1,7 +1,7 @@
 package com.example.urlshortener.auth;
 
-import com.example.urlShortener.user.User;
-import com.example.urlShortener.user.UserRepository;
+import com.example.urlshortener.user.User;
+import com.example.urlshortener.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
