@@ -1,9 +1,9 @@
-package com.example.urlShortener;
+package com.example.urlshortener;
 
-import com.example.urlShortener.auth.*;
-import com.example.urlShortener.user.Role;
-import com.example.urlShortener.user.User;
-import com.example.urlShortener.user.UserRepository;
+import com.example.urlshortener.auth.*;
+import com.example.urlshortener.user.Role;
+import com.example.urlshortener.user.User;
+import com.example.urlshortener.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
