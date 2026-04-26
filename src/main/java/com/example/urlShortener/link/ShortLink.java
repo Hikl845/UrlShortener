@@ -1,6 +1,6 @@
 package com.example.urlshortener.link;
 
-import com.example.urlShortener.user.User;
+import com.example.urlshortener.user.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
