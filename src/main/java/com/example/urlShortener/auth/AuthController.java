@@ -1,4 +1,4 @@
-package com.example.urlShortener.auth;
+package com.example.urlshortener.auth;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
