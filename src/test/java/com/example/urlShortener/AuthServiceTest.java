@@ -5,15 +5,16 @@ import com.example.urlShortener.user.Role;
 import com.example.urlShortener.user.User;
 import com.example.urlShortener.user.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,9 +42,9 @@ class AuthServiceTest {
                 .thenReturn(Optional.empty());
 
         when(passwordEncoder.encode(anyString()))
-                .thenReturn("encoded");
+                .thenReturn("encoded-password");
 
-        when(jwtService.generateAccessToken(anyString(), anyString()))
+        when(jwtService.generateAccessToken(anyString(), any()))
                 .thenReturn("fake-token");
 
         AuthResponse response = authService.register(request);
@@ -55,8 +56,8 @@ class AuthServiceTest {
     void shouldLoginUser() {
         User user = new User();
         user.setUsername("test");
-        user.setPassword("encoded");
-        user.setRole(Role.ROLE_USER); // FIX
+        user.setPassword("encoded-password");
+        user.setRole(Role.ROLE_USER);
 
         when(userRepository.findByUsername("test"))
                 .thenReturn(Optional.of(user));
@@ -64,7 +65,7 @@ class AuthServiceTest {
         when(passwordEncoder.matches(anyString(), anyString()))
                 .thenReturn(true);
 
-        when(jwtService.generateAccessToken(anyString(), anyString()))
+        when(jwtService.generateAccessToken(anyString(), any()))
                 .thenReturn("fake-token");
 
         LoginRequest request = new LoginRequest();

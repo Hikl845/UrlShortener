@@ -1,8 +1,6 @@
 package com.example.urlShortener;
 
-import com.example.urlShortener.link.LinkRepository;
-import com.example.urlShortener.link.LinkServiceImpl;
-import com.example.urlShortener.link.ShortLink;
+import com.example.urlShortener.link.*;
 import com.example.urlShortener.link.dto.LinkResponse;
 import com.example.urlShortener.link.dto.LinkStatsResponse;
 import com.example.urlShortener.user.User;
@@ -13,10 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,8 +32,12 @@ class LinkServiceTest {
 
     @Test
     void shouldCreateLink() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("test");
+
         when(userRepository.findByUsername("test"))
-                .thenReturn(Optional.of(new User()));
+                .thenReturn(Optional.of(user));
 
         when(linkRepository.existsByShortCode(anyString()))
                 .thenReturn(false);
@@ -68,6 +71,7 @@ class LinkServiceTest {
     void shouldReturnUserLinks() {
         User user = new User();
         user.setId(1L);
+        user.setUsername("test");
 
         when(userRepository.findByUsername("test"))
                 .thenReturn(Optional.of(user));
