@@ -12,6 +12,7 @@ public class User {
 
     private String username;
     private String password;
+    private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -30,4 +31,11 @@ public class User {
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+    public LocalDateTime getCreatedAt() {
+    return createdAt;
+}
+
+public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+}
 }
