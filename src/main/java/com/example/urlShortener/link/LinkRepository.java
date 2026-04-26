@@ -1,4 +1,4 @@
-package com.example.urlShortener.link;
+package com.example.urlshortener.link;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
