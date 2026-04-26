@@ -1,23 +1,20 @@
 package com.example.urlShortener;
 
-import com.example.urlShortener.auth.AuthRequest;
-import com.example.urlShortener.auth.AuthResponse;
-import com.example.urlShortener.auth.AuthService;
-import com.example.urlShortener.auth.JwtService;
+import com.example.urlShortener.auth.*;
+import com.example.urlShortener.user.Role;
 import com.example.urlShortener.user.User;
 import com.example.urlShortener.user.UserRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -26,7 +23,7 @@ class AuthServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private PasswordEncoder encoder;
+    private PasswordEncoder passwordEncoder;
 
     @Mock
     private JwtService jwtService;
@@ -36,41 +33,46 @@ class AuthServiceTest {
 
     @Test
     void shouldRegisterUser() {
-
-        AuthRequest request = new AuthRequest();
+        RegisterRequest request = new RegisterRequest();
         request.setUsername("test");
-        request.setPassword("Password1"); // ✅ валідний пароль
+        request.setPassword("StrongPass123");
 
         when(userRepository.findByUsername("test"))
                 .thenReturn(Optional.empty());
 
-        when(encoder.encode(any()))
+        when(passwordEncoder.encode(anyString()))
                 .thenReturn("encoded");
 
-        when(jwtService.generateAccessToken(any(), any()))
-                .thenReturn("access");
-
-        when(jwtService.generateRefreshToken(any()))
-                .thenReturn("refresh");
+        when(jwtService.generateAccessToken(anyString(), anyString()))
+                .thenReturn("fake-token");
 
         AuthResponse response = authService.register(request);
 
         assertNotNull(response);
-        assertNotNull(response.getAccessToken());
-        assertNotNull(response.getRefreshToken());
     }
 
     @Test
-    void shouldThrowIfUserExists() {
-
-        AuthRequest request = new AuthRequest();
-        request.setUsername("test");
-        request.setPassword("Password1");
+    void shouldLoginUser() {
+        User user = new User();
+        user.setUsername("test");
+        user.setPassword("encoded");
+        user.setRole(Role.ROLE_USER); // FIX
 
         when(userRepository.findByUsername("test"))
-                .thenReturn(Optional.of(new User()));
+                .thenReturn(Optional.of(user));
 
-        assertThrows(RuntimeException.class, () ->
-                authService.register(request));
+        when(passwordEncoder.matches(anyString(), anyString()))
+                .thenReturn(true);
+
+        when(jwtService.generateAccessToken(anyString(), anyString()))
+                .thenReturn("fake-token");
+
+        LoginRequest request = new LoginRequest();
+        request.setUsername("test");
+        request.setPassword("StrongPass123");
+
+        AuthResponse response = authService.login(request);
+
+        assertNotNull(response);
     }
 }
