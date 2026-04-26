@@ -1,4 +1,4 @@
-package com.example.urlShortener.auth;
+package com.example.urlshortener.auth;
 
 import com.example.urlShortener.user.User;
 import org.springframework.security.core.context.SecurityContextHolder;
