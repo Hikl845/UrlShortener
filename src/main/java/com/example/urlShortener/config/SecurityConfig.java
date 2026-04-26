@@ -1,4 +1,4 @@
-package com.example.urlShortener.config;
+package com.example.urlshortener.config;
 
 import com.example.urlShortener.auth.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
