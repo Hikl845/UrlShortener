@@ -1,10 +1,10 @@
 package com.example.urlshortener.link;
 
-import com.example.urlShortener.exception.BadRequestException;
-import com.example.urlShortener.link.dto.LinkResponse;
-import com.example.urlShortener.link.dto.LinkStatsResponse;
-import com.example.urlShortener.user.User;
-import com.example.urlShortener.user.UserRepository;
+import com.example.urlshortener.exception.BadRequestException;
+import com.example.urlshortener.link.dto.LinkResponse;
+import com.example.urlshortener.link.dto.LinkStatsResponse;
+import com.example.urlshortener.user.User;
+import com.example.urlshortener.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
