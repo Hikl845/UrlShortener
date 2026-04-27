@@ -69,7 +69,7 @@ public class LinkServiceImpl implements LinkService {
     }
 
     // =========================
-    // GET USER LINKS
+    // USER LINKS (ALL)
     // =========================
     @Override
     public List<LinkResponse> getUserLinks(String username) {
@@ -79,6 +79,29 @@ public class LinkServiceImpl implements LinkService {
 
         return repo.findAllByUserId(user.getId())
                 .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    // =========================
+    // USER LINKS (FILTER ACTIVE)
+    // =========================
+    @Override
+    public List<LinkResponse> getUserLinks(String username, Boolean active) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BadRequestException("User not found"));
+
+        return repo.findAllByUserId(user.getId())
+                .stream()
+                .filter(link -> {
+                    if (active == null) return true;
+
+                    boolean isActive = link.getExpiresAt() == null ||
+                            link.getExpiresAt().isAfter(LocalDateTime.now());
+
+                    return active ? isActive : !isActive;
+                })
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -175,25 +198,5 @@ public class LinkServiceImpl implements LinkService {
         } while (repo.existsByShortCode(code));
 
         return code;
-    }
-
-    @Override
-    public List<LinkResponse> getUserLinks(String username, Boolean active) {
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new BadRequestException("User not found"));
-
-        return repo.findAllByUserId(user.getId())
-                .stream()
-                .filter(link -> {
-                    if (active == null) return true;
-
-                    boolean isActive = link.getExpiresAt() == null ||
-                            link.getExpiresAt().isAfter(LocalDateTime.now());
-
-                    return active ? isActive : !isActive;
-                })
-                .map(this::mapToResponse)
-                .toList();
     }
 }
