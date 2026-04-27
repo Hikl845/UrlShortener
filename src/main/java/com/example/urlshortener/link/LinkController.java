@@ -2,16 +2,11 @@ package com.example.urlshortener.link;
 
 import com.example.urlshortener.link.dto.LinkResponse;
 import com.example.urlshortener.link.dto.LinkStatsResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
-@Tag(name = "Links", description = "Operations with short links")
 @RestController
 @RequestMapping("/api/v1/link")
 public class LinkController {
@@ -22,13 +17,8 @@ public class LinkController {
         this.service = service;
     }
 
-    // =========================
-    // CREATE LINK
-    // =========================
-    @Operation(summary = "Create short link")
     @PostMapping
     public LinkResponse create(@RequestParam String url) {
-
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -36,53 +26,24 @@ public class LinkController {
         return service.create(url, username);
     }
 
-    // =========================
-    // REDIRECT (PUBLIC)
-    // =========================
-    @Operation(summary = "Redirect to original URL")
     @GetMapping("/{code}")
-    public void redirect(@PathVariable String code,
-                         HttpServletResponse response) throws IOException {
-
-        ShortLink link = service.openByCode(code);
-        response.sendRedirect(link.getOriginalUrl());
+    public LinkResponse open(@PathVariable String code) {
+        return service.openByCode(code);
     }
 
-    // =========================
-    // GET ALL LINKS
-    // =========================
-    @Operation(summary = "Get all user links")
     @GetMapping
-    public List<LinkResponse> getLinks() {
-
+    public List<LinkResponse> getLinks(
+            @RequestParam(required = false) Boolean active
+    ) {
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
 
-        return service.getUserLinks(username, null);
+        return service.getUserLinks(username, active);
     }
 
-    // =========================
-    // GET ACTIVE LINKS 🔥
-    // =========================
-    @Operation(summary = "Get active links")
-    @GetMapping("/active")
-    public List<LinkResponse> getActiveLinks() {
-
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
-
-        return service.getUserLinks(username, true);
-    }
-
-    // =========================
-    // DELETE LINK
-    // =========================
-    @Operation(summary = "Delete link")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -90,10 +51,6 @@ public class LinkController {
         service.delete(id, username);
     }
 
-    // =========================
-    // GET STATS
-    // =========================
-    @Operation(summary = "Get link statistics")
     @GetMapping("/stats/{code}")
     public LinkStatsResponse stats(@PathVariable String code) {
         return service.getStats(code);
