@@ -13,7 +13,7 @@ public interface LinkService {
 
     List<LinkResponse> getUserLinks(String username);
 
-    // 🔥 ДОБАВЛЕНО (по ТЗ)
+    // 🔥 по ТЗ (active / не active)
     List<LinkResponse> getUserLinks(String username, Boolean active);
 
     void delete(Long id, String username);
