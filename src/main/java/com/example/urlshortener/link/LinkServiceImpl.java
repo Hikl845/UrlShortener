@@ -1,10 +1,10 @@
-package com.example.urlShortener.link;
+package com.example.urlshortener.link;
 
-import com.example.urlShortener.exception.BadRequestException;
-import com.example.urlShortener.link.dto.LinkResponse;
-import com.example.urlShortener.link.dto.LinkStatsResponse;
-import com.example.urlShortener.user.User;
-import com.example.urlShortener.user.UserRepository;
+import com.example.urlshortener.exception.BadRequestException;
+import com.example.urlshortener.link.dto.LinkResponse;
+import com.example.urlshortener.link.dto.LinkStatsResponse;
+import com.example.urlshortener.user.User;
+import com.example.urlshortener.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -177,5 +177,23 @@ public class LinkServiceImpl implements LinkService {
         return code;
     }
 
+    @Override
+    public List<LinkResponse> getUserLinks(String username, Boolean active) {
 
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BadRequestException("User not found"));
+
+        return repo.findAllByUserId(user.getId())
+                .stream()
+                .filter(link -> {
+                    if (active == null) return true;
+
+                    boolean isActive = link.getExpiresAt() == null ||
+                            link.getExpiresAt().isAfter(LocalDateTime.now());
+
+                    return active ? isActive : !isActive;
+                })
+                .map(this::mapToResponse)
+                .toList();
+    }
 }

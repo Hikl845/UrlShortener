@@ -9,9 +9,12 @@ public interface LinkService {
 
     LinkResponse create(String url, String username);
 
-    ShortLink openByCode(String code);
+    LinkResponse openByCode(String code);
 
-    List<LinkResponse> getUserLinks(String username, Boolean onlyActive);
+    List<LinkResponse> getUserLinks(String username);
+
+    // 🔥 ДОБАВЛЕНО (по ТЗ)
+    List<LinkResponse> getUserLinks(String username, Boolean active);
 
     void delete(Long id, String username);
 

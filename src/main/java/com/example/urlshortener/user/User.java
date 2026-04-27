@@ -1,4 +1,4 @@
-package com.example.urlShortener.user;
+package com.example.urlshortener.user;
 
 import jakarta.persistence.*;
 
