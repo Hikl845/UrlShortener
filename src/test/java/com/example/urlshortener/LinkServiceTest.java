@@ -1,10 +1,10 @@
-package com.example.urlShortener;
+package com.example.urlshortener;
 
-import com.example.urlShortener.link.*;
-import com.example.urlShortener.link.dto.LinkResponse;
-import com.example.urlShortener.link.dto.LinkStatsResponse;
-import com.example.urlShortener.user.User;
-import com.example.urlShortener.user.UserRepository;
+import com.example.urlshortener.link.*;
+import com.example.urlshortener.link.dto.LinkResponse;
+import com.example.urlshortener.link.dto.LinkStatsResponse;
+import com.example.urlshortener.user.User;
+import com.example.urlshortener.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class LinkServiceTest {
@@ -42,6 +42,13 @@ class LinkServiceTest {
         when(linkRepository.existsByShortCode(anyString()))
                 .thenReturn(false);
 
+        when(linkRepository.save(any(ShortLink.class)))
+                .thenAnswer(invocation -> {
+                    ShortLink link = invocation.getArgument(0);
+                    link.setShortCode("abc123");
+                    return link;
+                });
+
         LinkResponse response = linkService.create(
                 "https://google.com",
                 "test"
@@ -49,6 +56,7 @@ class LinkServiceTest {
 
         assertNotNull(response);
         assertEquals("https://google.com", response.getOriginalUrl());
+        assertEquals("abc123", response.getShortCode());
     }
 
     @Test
@@ -61,7 +69,8 @@ class LinkServiceTest {
         when(linkRepository.findByShortCode("abc123"))
                 .thenReturn(Optional.of(link));
 
-        LinkResponse response = linkService.openByCode("abc123");
+        // 👇 ЕСЛИ сервис возвращает ShortLink
+        ShortLink response = linkService.openByCode("abc123");
 
         assertNotNull(response);
         assertEquals("abc123", response.getShortCode());
@@ -79,7 +88,8 @@ class LinkServiceTest {
         when(linkRepository.findAllByUserId(1L))
                 .thenReturn(List.of());
 
-        List<LinkResponse> result = linkService.getUserLinks("test");
+        // 👇 добавили второй аргумент
+        List<LinkResponse> result = linkService.getUserLinks("test", false);
 
         assertNotNull(result);
     }
