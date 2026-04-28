@@ -69,7 +69,7 @@ class LinkServiceTest {
         when(linkRepository.findByShortCode("abc123"))
                 .thenReturn(Optional.of(link));
 
-        // 👇 ЕСЛИ сервис возвращает ShortLink
+        
         ShortLink response = linkService.openByCode("abc123");
 
         assertNotNull(response);
@@ -88,7 +88,7 @@ class LinkServiceTest {
         when(linkRepository.findAllByUserId(1L))
                 .thenReturn(List.of());
 
-        // 👇 добавили второй аргумент
+       
         List<LinkResponse> result = linkService.getUserLinks("test", false);
 
         assertNotNull(result);
