@@ -69,8 +69,8 @@ class LinkServiceTest {
         when(linkRepository.findByShortCode("abc123"))
                 .thenReturn(Optional.of(link));
 
-        
-        ShortLink response = linkService.openByCode("abc123");
+
+        LinkResponse response = linkService.openByCode("abc123");
 
         assertNotNull(response);
         assertEquals("abc123", response.getShortCode());
