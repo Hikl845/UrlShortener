@@ -18,7 +18,7 @@ public class JwtService {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // 🔐 ACCESS TOKEN (15 хв)
+    
     public String generateAccessToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
@@ -29,7 +29,7 @@ public class JwtService {
                 .compact();
     }
 
-    // 🔄 REFRESH TOKEN (7 днів)
+    
     public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -39,17 +39,17 @@ public class JwtService {
                 .compact();
     }
 
-    // 📦 username
+    
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
     }
 
-    // 👑 role
+    
     public String extractRole(String token) {
         return getClaims(token).get("role", String.class);
     }
 
-    // 🧠 claims
+    
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -58,7 +58,7 @@ public class JwtService {
                 .getBody();
     }
 
-    // ✅ перевірка
+    
     public boolean isValid(String token) {
         try {
             Claims claims = getClaims(token);
