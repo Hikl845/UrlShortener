@@ -24,9 +24,6 @@ public class LinkServiceImpl implements LinkService {
         this.userRepository = userRepository;
     }
 
-    // =========================
-    // CREATE
-    // =========================
     @Override
     public LinkResponse create(String url, String username) {
 
@@ -48,9 +45,6 @@ public class LinkServiceImpl implements LinkService {
         return mapToResponse(link);
     }
 
-    // =========================
-    // OPEN
-    // =========================
     @Override
     @Transactional
     public LinkResponse openByCode(String code) {
@@ -68,47 +62,28 @@ public class LinkServiceImpl implements LinkService {
         return mapToResponse(link);
     }
 
-    // =========================
-    // USER LINKS (ALL)
-    // =========================
-    @Override
-    public List<LinkResponse> getUserLinks(String username) {
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new BadRequestException("User not found"));
-
-        return repo.findAllByUserId(user.getId())
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
-
-    // =========================
-    // USER LINKS (FILTER ACTIVE)
-    // =========================
     @Override
     public List<LinkResponse> getUserLinks(String username, Boolean active) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
-        return repo.findAllByUserId(user.getId())
-                .stream()
-                .filter(link -> {
-                    if (active == null) return true;
+        List<ShortLink> links;
 
-                    boolean isActive = link.getExpiresAt() == null ||
-                            link.getExpiresAt().isAfter(LocalDateTime.now());
+        if (Boolean.TRUE.equals(active)) {
+            links = repo.findAllByUserIdAndExpiresAtAfter(
+                    user.getId(),
+                    LocalDateTime.now()
+            );
+        } else {
+            links = repo.findAllByUserId(user.getId());
+        }
 
-                    return active ? isActive : !isActive;
-                })
+        return links.stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
-    // =========================
-    // DELETE
-    // =========================
     @Override
     public void delete(Long id, String username) {
 
@@ -125,14 +100,18 @@ public class LinkServiceImpl implements LinkService {
         repo.delete(link);
     }
 
-    // =========================
-    // STATS
-    // =========================
     @Override
-    public LinkStatsResponse getStats(String code) {
+    public LinkStatsResponse getStats(String code, String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BadRequestException("User not found"));
 
         ShortLink link = repo.findByShortCode(code)
                 .orElseThrow(() -> new BadRequestException("Link not found"));
+
+        if (!link.getUser().getId().equals(user.getId())) {
+            throw new BadRequestException("Access denied");
+        }
 
         boolean active = link.getExpiresAt() == null ||
                 link.getExpiresAt().isAfter(LocalDateTime.now());
@@ -145,9 +124,6 @@ public class LinkServiceImpl implements LinkService {
         );
     }
 
-    // =========================
-    // VALIDATION
-    // =========================
     private void validateUrl(String url) {
 
         if (url == null || url.isBlank()) {
@@ -165,9 +141,6 @@ public class LinkServiceImpl implements LinkService {
         }
     }
 
-    // =========================
-    // MAPPER
-    // =========================
     private LinkResponse mapToResponse(ShortLink link) {
         return new LinkResponse(
                 link.getShortCode(),
@@ -176,9 +149,6 @@ public class LinkServiceImpl implements LinkService {
         );
     }
 
-    // =========================
-    // CODE GENERATOR
-    // =========================
     private String generateUniqueCode() {
 
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,15 +66,17 @@ class LinkServiceTest {
         link.setShortCode("abc123");
         link.setOriginalUrl("https://google.com");
         link.setClickCount(0);
+        link.setExpiresAt(LocalDateTime.now().plusDays(1)); // щоб не було expired
 
         when(linkRepository.findByShortCode("abc123"))
                 .thenReturn(Optional.of(link));
-
 
         LinkResponse response = linkService.openByCode("abc123");
 
         assertNotNull(response);
         assertEquals("abc123", response.getShortCode());
+
+        verify(linkRepository).incrementClick("abc123");
     }
 
     @Test
@@ -88,7 +91,6 @@ class LinkServiceTest {
         when(linkRepository.findAllByUserId(1L))
                 .thenReturn(List.of());
 
-       
         List<LinkResponse> result = linkService.getUserLinks("test", false);
 
         assertNotNull(result);
@@ -96,17 +98,27 @@ class LinkServiceTest {
 
     @Test
     void shouldReturnStats() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("test");
+
         ShortLink link = new ShortLink();
         link.setShortCode("abc123");
         link.setOriginalUrl("https://google.com");
         link.setClickCount(5);
+        link.setUser(user);
+        link.setExpiresAt(LocalDateTime.now().plusDays(1));
+
+        when(userRepository.findByUsername("test"))
+                .thenReturn(Optional.of(user));
 
         when(linkRepository.findByShortCode("abc123"))
                 .thenReturn(Optional.of(link));
 
-        LinkStatsResponse stats = linkService.getStats("abc123");
+        LinkStatsResponse stats = linkService.getStats("abc123", "test");
 
         assertNotNull(stats);
         assertEquals(5, stats.getClickCount());
+        assertTrue(stats.isActive());
     }
 }

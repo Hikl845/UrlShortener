@@ -11,12 +11,9 @@ public interface LinkService {
 
     LinkResponse openByCode(String code);
 
-    List<LinkResponse> getUserLinks(String username);
-
-    // 🔥 по ТЗ (active / не active)
     List<LinkResponse> getUserLinks(String username, Boolean active);
 
     void delete(Long id, String username);
 
-    LinkStatsResponse getStats(String code);
+    LinkStatsResponse getStats(String code, String username);
 }
