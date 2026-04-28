@@ -1,6 +1,7 @@
 package com.example.urlshortener.user;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
