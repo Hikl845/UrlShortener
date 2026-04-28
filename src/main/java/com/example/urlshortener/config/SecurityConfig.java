@@ -26,7 +26,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔓 PUBLIC endpoints
+                        
                         .requestMatchers(
                                 "/",
                                 "/error",
@@ -36,10 +36,10 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // 🔓 redirect (ВАЖЛИВО — виправлено)
+                        
                         .requestMatchers(HttpMethod.GET, "/api/v1/link/*").permitAll()
 
-                        // 🔒 все інше
+                        
                         .anyRequest().authenticated()
                 )
 
